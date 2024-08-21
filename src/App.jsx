@@ -29,20 +29,9 @@ function App() {
 
   // console.log(countries);
 
-  const onSortCountry = (countries) => {
-    countries.sort((a, b) => {
-      if (a.gold === b.gold) {
-        return b.gold + b.silver + b.bronze - (a.gold + a.silver + a.bronze);
-      } else {
-        return b.gold - a.gold;
-      }
-    });
-  };
-  console.log(onSortCountry);
-
   const onHandleSubmit = (e) => {
     e.preventDefault();
-    const findCountry = countries.some((el) => el.country === country);
+    const findCountry = countries.find((el) => el.country === country);
     const newCountries = {
       country: country,
       gold: Number(gold),
@@ -50,15 +39,44 @@ function App() {
       bronze: Number(bronze)
     };
 
-    if (!country) alert('국가명을 입력해 주세요.');
-    else if (findCountry) alert('이미 등록된 있는 국가입니다.');
-    else setCountries([...countries, newCountries]);
+    if (!country) {
+      alert('국가명을 입력해 주세요.');
+      // return;
+    } else if (findCountry) {
+      alert('이미 등록된 있는 국가입니다.');
+    } else {
+      // 추가를 할 수 있는 상태
+      // 1) sort 처리를 먼저
+      // const sortedArr = [...countries, newCountries].sort(~~~~);
+      const sortedArr = [...countries, newCountries].sort((a, b) => {
+        if (a.gold === b.gold) {
+          return b.gold + b.silver + b.bronze - (a.gold + a.silver + a.bronze);
+        } else {
+          return b.gold - a.gold;
+        }
+      });
+
+      // 2) setCounties
+      setCountries(sortedArr);
+
+      // countries를 바꿔주는 로직
+      // setCountries([...countries, newCountries]);
+    }
+
+    // 이 부분부터 counties는 바뀐 배열일까??? set으로 인해 바뀐 상태지만 그걸 다 가지고 오지 않았어서 처리가 되지 않았다.
+    // console.log(sortedArr);
+    // onSortCountry();
+
+    setCountry('');
+    setGold('');
+    setSilver('');
+    setBronze('');
   };
 
   const onHandleUpdate = () => {
     const findCountry = countries.some((el) => el.country === country);
     const updateCounrty = [...countries].map((el) =>
-      el.country === country ? { ...el, gold: gold, silver: silver, bronze: bronze } : el
+      el.country === country ? { ...el, gold: Number(gold), silver: Number(silver), bronze: Number(bronze) } : el
     );
     if (!country) alert('국가를 입력해 주세요.');
     else if (!findCountry) alert('등록 되어 있지 않은 국가입니다.');
@@ -107,11 +125,12 @@ function App() {
             <table>
               <caption> 메달 획득 현황 </caption>
               <colgroup>
-                <col width="20%" />
-                <col width="20%" />
-                <col width="20%" />
-                <col width="20%" />
-                <col width="20%" />
+                <col width="16.66%" />
+                <col width="16.66%" />
+                <col width="16.66%" />
+                <col width="16.66%" />
+                <col width="16.66%" />
+                <col width="16.66%" />
               </colgroup>
               <thead>
                 <tr>
@@ -119,6 +138,7 @@ function App() {
                   <th>금메달</th>
                   <th>은메달</th>
                   <th>동메달</th>
+                  <th>메달 총 개수</th>
                   <th>액션</th>
                 </tr>
               </thead>
@@ -129,6 +149,7 @@ function App() {
                     <td>{data.gold}</td>
                     <td>{data.silver}</td>
                     <td>{data.bronze}</td>
+                    <td>{data.gold + data.silver + data.bronze}</td>
                     <td>
                       <button type="button" onClick={onHandleDelete}>
                         삭제
