@@ -1,0 +1,19 @@
+.sort-group {
+  margin: 40px 0 0;
+  display: flex;
+  justify-content: flex-end;
+
+  .sort-button {
+    padding: 5px 5px;
+    transition: background-color 0.3s, color 0.3s;
+    font-weight: 600;
+    color: var(--pointColor);
+
+    &.active {
+      color: var(--activeColor);
+    }
+
+    &:hover {
+    }
+  }
+}

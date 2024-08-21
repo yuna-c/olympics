@@ -1,0 +1,10 @@
+.no-data {
+  width: calc(100% - 1%);
+  margin: 50px auto;
+  padding: 10px;
+  border-top: 1px solid var(--baseColor);
+  span {
+    display: block;
+    padding: 10px 0;
+  }
+}
