@@ -1,0 +1,28 @@
+@import 'reset';
+@import 'variables.scss';
+
+#wrap {
+  min-width: 800px;
+  max-width: 1200px;
+  padding-bottom: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px var(--borderColor);
+  background-color: var(--mainColor);
+}
+
+@media (max-width: 1400px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+// tablet
+@media (max-width: 1200px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+// mobile
+@media (max-width: 640px) {
+}
