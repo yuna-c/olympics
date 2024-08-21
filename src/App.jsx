@@ -1,138 +1,91 @@
 import { useState } from 'react';
-import './styles/App.css';
+import Header from './components/header';
+import Table from './components/Table';
+import Button from './components/Button';
+import Input from './components/Input';
+import Nodata from './components/Nodata';
+import './App.css';
 
 function App() {
-  const [countrise, setcountrise] = useState([]);
-  const [countryInput, setCountryInput] = useState('');
-  const [goldInput, setGoldInput] = useState(0);
+  const [CountryInfo, setCountryInfo] = useState([]);
+  const [CountryInput, setCountryInput] = useState('');
+  const [GoldInput, setGoldInput] = useState(0);
   const [silverInput, setSilverInput] = useState(0);
   const [bronzeInput, setBronzeInput] = useState(0);
 
-  const checkExistance = () => {
-    return countrise.find((country) => {
-      if (country.name.toLowerCase() === countryInput.toLowerCase()) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-  };
-
-  const addCountry = (e) => {
+  // 추가
+  const onAddInfo = (e) => {
     e.preventDefault();
 
-    if (checkExistance()) {
-      alert('이미 등록된 국가입니다.');
-    } else {
-      const newCountry = {
-        name: countryInput,
-        gold: goldInput,
-        silver: silverInput,
-        bronze: bronzeInput
-      };
-      // 기존 나라들과 새로운 나라들을 추가 하기 위해 의존성 배열
-      setcountrise([...countrise, newCountry]);
+    if (!CountryInput) {
+      alert('국가명을 입력해 주세요');
+      return;
     }
+
+    const newCountryInfo = {
+      name: CountryInput,
+      gold: GoldInput,
+      silver: silverInput,
+      bronze: bronzeInput
+    };
+
+    const sortArr = [...CountryInfo, newCountryInfo].sort((a, b) => {
+      return a.gold === b.gold ? b.gold + b.silver + b.bronze - (a.gold + a.silver + a.bronze) : b.gold - a.gold;
+    });
+
+    setCountryInfo(sortArr);
   };
 
-  const updataCountry = (e) => {
-    e.preventDefault(); // 버블링방지(중복 생김)
+  // 업데이트
+  const onUpdateInfo = (e) => {
+    e.preventDefault();
 
-    if (checkExistance()) {
-      // existingCountry===  true는 왜 입력이 안되고 else로 빠질까
-      setcountrise(
-        countrise.map((country) => {
-          if (country.name.toLowerCase() === countryInput.toLowerCase()) {
-            // 일치하는 나라는 금은동을 바꿈
-            return { name: country.name, gold: goldInput, silver: silverInput, bronze: bronzeInput };
-          } else {
-            // 일치하지 않는 나라들은 그대로 냅둠
-            return country;
-          }
+    const updateCountryInfo = CountryInfo.find((country) => {
+      return country.name === CountryInput ? true : false;
+    });
+
+    if (updateCountryInfo) {
+      setCountryInfo(
+        CountryInfo.map((country) => {
+          return country.name === CountryInput
+            ? { name: country.name, gold: GoldInput, silver: silverInput, bronze: bronzeInput }
+            : country;
         })
       );
     } else {
-      alert('등록되지 않은 국가입니다');
+      alert('등록 X 국가');
     }
   };
 
-  // 이름을 받아 같은 이름을 삭제
-  const deleteCountry = (name) => {
-    setcountrise(
-      countrise.filter((country) => {
-        if (country.name.toLowerCase() === name) {
-          return null;
-        } else {
-          return country;
-        }
-      })
-    );
+  // 삭제
+  const onDeleteInfo = (name) => {
+    const deleteInfo = CountryInfo.filter((country) => {
+      if (country.name !== name) return country;
+      alert('삭제 완료');
+    });
 
-    alert(`${name}이 삭제되었습니다`);
+    setCountryInfo(deleteInfo);
   };
 
   return (
     <>
-      {/* <div className='cursor-wrapper'>
-        <div className='cursor'>text</div>
-      </div> */}
-      <div className="main-container">
-        <h1>2024 파리 올림픽 메달 대시보드</h1>
-        <form className="input-form" onSubmit={addCountry}>
-          <div className="input-field">
-            <label htmlFor="country">국가명</label>
-            <input type="text" id="country" onChange={(e) => setCountryInput(e.target.value)} />
-          </div>
-          <div className="input-field">
-            <label htmlFor="gold">금메달</label>
-            <input type="text" id="gold" onChange={(e) => setGoldInput(e.target.value)} />
-          </div>
-          <div className="input-field">
-            <label htmlFor="silver">은메달</label>
-            <input type="text" id="silver" onChange={(e) => setSilverInput(e.target.value)} />
-          </div>
-          <div className="input-field">
-            <label htmlFor="bronze">동메달</label>
-            <input type="text" id="bronze" onChange={(e) => setBronzeInput(e.target.value)} />
-          </div>
-          <div className="button-group">
-            <button type="submit">추가하기</button>
-            <button onClick={updataCountry}>업데이트</button>
-          </div>
+      <div id="wrap">
+        <Header />
+        <form onSubmit={onAddInfo}>
+          <Input
+            setCountryInput={setCountryInput}
+            setGoldInput={setGoldInput}
+            setSilverInput={setSilverInput}
+            setBronzeInput={setBronzeInput}
+            CountryInput={CountryInput}
+            GoldInput={GoldInput}
+            silverInput={silverInput}
+            bronzeInput={bronzeInput}
+          />
+          <Button onUpdateInfo={onUpdateInfo} />
         </form>
 
-        <div className="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>국가명</th>
-                <th>금메달</th>
-                <th>은메달</th>
-                <th>동메달</th>
-              </tr>
-            </thead>
-            <tbody>
-              {countrise.map((country) => {
-                return (
-                  <tr key={country.name}>
-                    <td>{country.name}</td>
-                    <td>{country.gold}</td>
-                    <td>{country.silver}</td>
-                    <td>{country.bronze}</td>
-                    <td
-                      className="delete-btn"
-                      onClick={() => {
-                        deleteCountry(country.name);
-                      }}
-                    >
-                      삭제
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        {CountryInfo.length === 0 ? <Nodata /> : <Table onDeleteInfo={onDeleteInfo} CountryInfo={CountryInfo} />}
       </div>
     </>
   );
