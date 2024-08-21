@@ -50,3 +50,8 @@ td {
 th {
   min-width: 100px;
 }
+
+.delete-btn {
+  color: red;
+  cursor: pointer;
+}
