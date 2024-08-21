@@ -26,8 +26,27 @@
   display: flex;
   gap: 20px;
 }
+
 .button-group button {
   padding: 10px 12px;
   background-color: #fff;
   cursor: pointer;
+}
+
+.table-wrapper {
+  width: 100%;
+}
+
+table {
+  margin: auto;
+  text-align: center;
+}
+
+th,
+td {
+  padding: 10px;
+}
+
+th {
+  min-width: 100px;
 }
