@@ -12,7 +12,7 @@ function App() {
   const addCountry = (e) => {
     e.preventDefault();
     const newCountry = {
-      id: new Date().getTime(),
+      // id: new Date().getTime(),
       name: countryInput,
       gold: goldInput,
       silver: silverInput,
@@ -22,8 +22,35 @@ function App() {
     setcountrise([...countrise, newCountry]);
   };
 
-  console.log(countrise);
+  const updataCountry = (e) => {
+    e.preventDefault(); // 버블링방지(중복 생김)
 
+    const existingCountry = countrise.find((country) => {
+      if (country.name.toLowerCase() === countryInput.toLowerCase()) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    if (existingCountry) {
+      // existingCountry===  true는 왜 입력이 안되고 else로 빠질까
+      setcountrise(
+        countrise.map((country) => {
+          if (country.name.toLowerCase() === countryInput.toLowerCase()) {
+            // 일치하는 나라는 금은동을 바꿈
+            return { name: country.name, gold: goldInput, silver: silverInput, bronze: bronzeInput };
+          } else {
+            // 일치하지 않는 나라들은 그대로 냅둠
+            return country;
+          }
+        })
+      );
+    } else {
+      alert('등록되지 않은 국가입니다');
+    }
+  };
+  console.log(countrise);
   return (
     <>
       {/* <div className='cursor-wrapper'>
@@ -50,7 +77,7 @@ function App() {
           </div>
           <div className="button-group">
             <button type="submit">추가하기</button>
-            <button>업데이트</button>
+            <button onClick={updataCountry}>업데이트</button>
           </div>
         </form>
 
@@ -67,7 +94,7 @@ function App() {
             <tbody>
               {countrise.map((country) => {
                 return (
-                  <tr key={country.id}>
+                  <tr key={country.name}>
                     <td>{country.name}</td>
                     <td>{country.gold}</td>
                     <td>{country.silver}</td>
