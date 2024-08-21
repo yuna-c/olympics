@@ -4,87 +4,90 @@ import './styles/App.scss';
 // yarn add sass --save
 
 function App() {
-  // const countries = { country: country, gold: gold, silver: silver, bronze: bronze }
-  const [country, setCountry] = useState('');
-  const [gold, setGold] = useState(0);
-  const [silver, setSilver] = useState(0);
-  const [bronze, setBronze] = useState(0);
+  // default : const countries = { country: country, gold: gold, silver: silver, bronze: bronze }
+  // const [country, setCountry] = useState('');
+  // const [gold, setGold] = useState(0);
+  // const [silver, setSilver] = useState(0);
+  // const [bronze, setBronze] = useState(0);
   const [countries, setCountries] = useState([]);
 
-  const onAddCountry = (e) => {
-    setCountry(e.target.value);
-  };
+  // 1. 위의 state를 하나로 묶을 객체 state 추가
+  const [medalState, setMedalState] = useState({
+    country: '',
+    gold: 0,
+    silver: 0,
+    bronze: 0
+  });
 
-  const onAddGold = (e) => {
-    setGold(e.target.value);
-  };
+  // 2. 구조분해 할당을 통한 객체 찢기(name에 값을 주기 위해)
+  const { country, gold, silver, bronze } = medalState;
 
-  const onAddSilver = (e) => {
-    setSilver(e.target.value);
-  };
+  // const onAddCountry = (e) => setCountry(e.target.value);
+  // const onAddGold = (e) => setGold(e.target.value);
+  // const onAddSilver = (e) => setSilver(e.target.value);
+  // const onAddBronze = (e) => setBronze(e.target.value);
 
-  const onAddBronze = (e) => {
-    setBronze(e.target.value);
+  // 4. 이벤트 전부 공통화해서 onHandleInputChange에 담기 , []에 name을 담아 동적으로 객체 키를 지정하고 input값을 덮어씀
+  const onHandleInputChange = (e) => {
+    const { name, value } = e.target;
+    setMedalState((originalMedalState) => ({ ...originalMedalState, [name]: value }));
   };
-
-  // console.log(countries);
 
   const onHandleSubmit = (e) => {
     e.preventDefault();
-    const findCountry = countries.find((el) => el.country === country);
+    if (!country) {
+      alert('국가명을 입력해 주세요.');
+      return;
+    }
+    const findCountry = countries.find((e) => e.country === country);
+    if (findCountry) {
+      alert('이미 등록된 있는 국가입니다.');
+      return;
+    }
     const newCountries = {
       country: country,
       gold: Number(gold),
       silver: Number(silver),
       bronze: Number(bronze)
     };
+    const sortedArr = [...countries, newCountries].sort((a, b) => {
+      if (a.gold === b.gold) return b.gold + b.silver + b.bronze - (a.gold + a.silver + a.bronze);
+      else return b.gold - a.gold;
+    });
+    setCountries(sortedArr);
 
-    if (!country) {
-      alert('국가명을 입력해 주세요.');
-      // return;
-    } else if (findCountry) {
-      alert('이미 등록된 있는 국가입니다.');
-    } else {
-      // 추가를 할 수 있는 상태
-      // 1) sort 처리를 먼저
-      // const sortedArr = [...countries, newCountries].sort(~~~~);
-      const sortedArr = [...countries, newCountries].sort((a, b) => {
-        if (a.gold === b.gold) {
-          return b.gold + b.silver + b.bronze - (a.gold + a.silver + a.bronze);
-        } else {
-          return b.gold - a.gold;
-        }
-      });
+    // setCountry('');
+    // setGold('');
+    // setSilver('');
+    // setBronze('');
 
-      // 2) setCounties
-      setCountries(sortedArr);
-
-      // countries를 바꿔주는 로직
-      // setCountries([...countries, newCountries]);
-    }
-
-    // 이 부분부터 counties는 바뀐 배열일까??? set으로 인해 바뀐 상태지만 그걸 다 가지고 오지 않았어서 처리가 되지 않았다.
-    // console.log(sortedArr);
-    // onSortCountry();
-
-    setCountry('');
-    setGold('');
-    setSilver('');
-    setBronze('');
+    // 5. 위의 여러 함수 대신에 setMedalState로 모든 필드를 초기값으로 재설정
+    setMedalState({
+      country: '',
+      gold: 0,
+      silver: 0,
+      bronze: 0
+    });
   };
 
   const onHandleUpdate = () => {
-    const findCountry = countries.some((el) => el.country === country);
-    const updateCounrty = [...countries].map((el) =>
-      el.country === country ? { ...el, gold: Number(gold), silver: Number(silver), bronze: Number(bronze) } : el
+    if (!country) {
+      alert('국가명을 입력해 주세요.');
+      return;
+    }
+    const findCountry = countries.find((e) => e.country === country);
+    if (!findCountry) {
+      alert('등록 되어 있지 않은 국가입니다.');
+      return;
+    }
+    const updateCounrty = countries.map((e) =>
+      e.country === country ? { ...e, gold: Number(gold), silver: Number(silver), bronze: Number(bronze) } : e
     );
-    if (!country) alert('국가를 입력해 주세요.');
-    else if (!findCountry) alert('등록 되어 있지 않은 국가입니다.');
-    else setCountries(updateCounrty);
+    return setCountries(updateCounrty);
   };
 
-  const onHandleDelete = () => {
-    const deletedCounrty = countries.filter((el) => el.country != country);
+  const onHandleDelete = (target) => {
+    const deletedCounrty = countries.filter((e) => e.country !== target);
     setCountries(deletedCounrty);
   };
 
@@ -97,19 +100,31 @@ function App() {
         <form className="form-group" onSubmit={onHandleSubmit}>
           <div className="input-field">
             <label>국가명</label>
-            <input type="text" placeholder="국가 입력" name="country" value={country} onChange={onAddCountry} />
+            <input type="text" placeholder="국가 입력" name="country" value={country} onChange={onHandleInputChange} />
           </div>
           <div className="input-field">
             <label>금메달</label>
-            <input type="number" name="gold" value={gold} onChange={onAddGold} />
+            <input type="number" placeholder="금메달 개수" name="gold" value={gold} onChange={onHandleInputChange} />
           </div>
           <div className="input-field">
             <label>은메달</label>
-            <input type="number" name="silver" value={silver} onChange={onAddSilver} />
+            <input
+              type="number"
+              placeholder="은메달 개수"
+              name="silver"
+              value={silver}
+              onChange={onHandleInputChange}
+            />
           </div>
           <div className="input-field">
             <label>동메달</label>
-            <input type="number" name="bronze" value={bronze} onChange={onAddBronze} />
+            <input
+              type="number"
+              placeholder="동메달 개수"
+              name="bronze"
+              value={bronze}
+              onChange={onHandleInputChange}
+            />
           </div>
 
           <div className="button-group">
@@ -117,10 +132,24 @@ function App() {
             <button type="button" onClick={onHandleUpdate}>
               업데이트
             </button>
+            {/* 업데이트를 눌렀을 때 어떻게 동작해야하지? 
+            (1) input창 중에 나라이름에 매칭된 state 정보(name)
+            (2) state에 있는 나라이름(ex대한민국)으로 현존하는 countries 배열에서 찾아 by find => 내가 수정하려고 하는 국가 countries.find~
+            (3) map을 사용(변경대상의 배열을 새롭게 만들고 싶어) 
+            (3)-1. map이 하나하나 순회를 도는데, targetCoutnry의 이름과 일치하면 => gold,silver, bronze에 맞게 수정
+            (3)-2. map이 하나하나 순회를 도는데, targetCoutnry의 이름과 일치하지 않으면 그대로 내보내(return)
+            const newCountrise = countries.map~
+            (4) setCountries  setCountise(~~)
+            (5) input에 연결되어있는 state들을 초기화?
+        */}
           </div>
         </form>
 
-        {countries.length > 0 ? (
+        {countries.length === 0 ? (
+          <div className="no-data">
+            <span>아직 추가된 국가가 없습니다. 메달을 추적하세요!</span>
+          </div>
+        ) : (
           <div className="table-group">
             <table>
               <caption> 메달 획득 현황 </caption>
@@ -151,7 +180,12 @@ function App() {
                     <td>{data.bronze}</td>
                     <td>{data.gold + data.silver + data.bronze}</td>
                     <td>
-                      <button type="button" onClick={onHandleDelete}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onHandleDelete(data.country);
+                        }}
+                      >
                         삭제
                       </button>
                     </td>
@@ -159,10 +193,6 @@ function App() {
                 ))}
               </tbody>
             </table>
-          </div>
-        ) : (
-          <div className="no-data">
-            <span>아직 추가된 국가가 없습니다. 메달을 추적하세요!</span>
           </div>
         )}
       </main>
